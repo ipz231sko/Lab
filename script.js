@@ -7,33 +7,33 @@ const timerDisplay = document.getElementById('timer');
 let timerInterval;
 let timeSpent = 0;
 
-function updateTimer(){
+function updateTimer() {
     const minutes = Math.floor(timeSpent / 60);
     const seconds = timeSpent % 60;
     timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
-function startTimer(){
+function startTimer() {
     timerInterval = setInterval(() => {
         timeSpent++;
         updateTimer();
     }, 1000);
 }
 
-function stopTimer(){
+function stopTimer() {
     clearInterval(timerInterval);
 }
 
 document.addEventListener('visibilitychange', () => {
-    if(document.hidden){
+    if (document.hidden) {
         stopTimer();
-    }else{
+    } else {
         startTimer();
     }
 });
 
 window.addEventListener('load', () => {
-    if(!document.hidden){
+    if (!document.hidden) {
         startTimer();
     }
 });
@@ -51,26 +51,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
-function saveGalleryToLocalStorage(){
+function saveGalleryToLocalStorage() {
     const images = Array.from(gallery.querySelectorAll('img')).map(img => img.src);
     localStorage.setItem('galleryImages', JSON.stringify(images));
 }
 
 fetchBtn.addEventListener('click', async () => {
-    try{
+    try {
         const response = await fetch('https://dog.ceo/api/breeds/image/random');
         const data = await response.json();
 
-        if(data.status === "success"){
+        if (data.status === "success") {
             const img = document.createElement('img');
             img.src = data.message;
             gallery.appendChild(img);
             saveGalleryToLocalStorage();
-        } else{
+        } else {
             alert("Не вдалося завантажити зображення.");
         }
-    } catch(error){
+    } catch (error) {
         console.error("Помилка Fetch API:", error);
         alert("Щось пішло не так. Перевірте консоль");
     }
@@ -94,23 +93,27 @@ document.addEventListener("fullscreenchange", () => {
     }
 });
 
-
-if("geolocation" in navigator){
+if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition((position) => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
-
         const locationDiv = document.getElementById('location');
-        locationDiv.textContent = `${latitude.toFixed(4)}${longitude.toFixed(4)}`;
-
-        navigator.geolocation.watchPosition((position) => {
-            const newLatitude = position.coords.latitude;
-            const newLongitude = position.coords.longitude;
-            locationDiv.textContent = `${newLatitude.toFixed(4)}${newLongitude.toFixed(4)}`;
-        });
+        locationDiv.textContent = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
     }, (error) => {
-        alert("Не вдалося отримати ваше місцезнаходження.")
+        let errorMessage = "Невідома помилка.";
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                errorMessage = "Ви відмовилися надавати доступ до геолокації.";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                errorMessage = "Не вдалося знайти ваше місцезнаходження.";
+                break;
+            case error.TIMEOUT:
+                errorMessage = "Час очікування вичерпано.";
+                break;
+        }
+        alert(errorMessage);
     });
-} else{
+} else {
     alert("Geolocation API не підтримується вашим браузером.");
 }
