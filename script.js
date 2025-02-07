@@ -1,40 +1,47 @@
+class Timer{
+    constructor(displayElement){
+        this.displayElement = displayElement;
+        this.timeSpent = 0;
+        this.timerInterval = null;
+    }
+
+    start(){
+        this.timerInterval = setInterval(() => {
+            this.timeSpent++;
+            this.updateDisplay();
+        }, 1000);
+    }
+
+    stop(){
+        clearInterval(this.timerInterval);
+    }
+
+    updateDisplay(){
+        const minutes = Math.floor(this.timeSpent/60);
+        const seconds = this.timeSpent % 60;
+        this.displayElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+}
 const gallery = document.getElementById('gallery');
 const galleryContainer = document.getElementById('gallery-container');
 const fetchBtn = document.getElementById('fetch-btn');
 const fullscreenBtn = document.getElementById('fullscreen-btn');
 
 const timerDisplay = document.getElementById('timer');
-let timerInterval;
-let timeSpent = 0;
 
-function updateTimer(){
-    const minutes = Math.floor(timeSpent / 60);
-    const seconds = timeSpent % 60;
-    timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-}
-
-function startTimer(){
-    timerInterval = setInterval(() => {
-        timeSpent++;
-        updateTimer();
-    }, 1000);
-}
-
-function stopTimer(){
-    clearInterval(timerInterval);
-}
+const timer = new Timer(timerDisplay);
 
 document.addEventListener('visibilitychange', () => {
     if(document.hidden){
-        stopTimer();
+        timer.stop();
     }else{
-        startTimer();
+        timer.start();
     }
 });
 
 window.addEventListener('load', () => {
     if(!document.hidden){
-        startTimer();
+        timer.start();
     }
 });
 
